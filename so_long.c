@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   so_long.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehasalu <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: ehasalu <ehasalu@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 14:57:40 by ehasalu           #+#    #+#             */
-/*   Updated: 2023/02/15 13:50:22 by ehasalu          ###   ########.fr       */
+/*   Updated: 2023/02/15 20:11:29 by ehasalu          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,65 +40,21 @@ void	print_map(t_win *prg)
 	printf("\n");
 }
 
-int	move(t_win *prg, int dir)
+int	move(t_win *prg, int yc, int xc)
 {
-	if (dir == 1)
+	if (((*prg).map.layout[(*prg).map.pcoor.y + yc][(*prg).map.pcoor.x + xc] != '1')
+	&& ((*prg).map.layout[(*prg).map.pcoor.y + yc][(*prg).map.pcoor.x + xc] != 'E'))
 	{
-		if (((*prg).map.layout[(*prg).map.pcoor.y + 1][(*prg).map.pcoor.x] != '1')
-		&& ((*prg).map.layout[(*prg).map.pcoor.y + 1][(*prg).map.pcoor.x] != 'E'))
+		if ((*prg).map.layout[(*prg).map.pcoor.y + yc][(*prg).map.pcoor.x + xc] == 'C')
+			(*prg).map.col--;
+		if ((*prg).map.layout[(*prg).map.pcoor.y + yc][(*prg).map.pcoor.x + yc] == 'X')
 		{
-			if ((*prg).map.layout[(*prg).map.pcoor.y + 1][(*prg).map.pcoor.x] == 'C')
-				(*prg).map.col--;
-			if ((*prg).map.layout[(*prg).map.pcoor.y + 1][(*prg).map.pcoor.x] == 'X')
-			{
-				printf("U WONNERED");	
-			}
-			(*prg).map.layout[(*prg).map.pcoor.y][(*prg).map.pcoor.x] = '0';
-			(*prg).map.layout[(*prg).map.pcoor.y + 1][(*prg).map.pcoor.x] = 'P';
-			(*prg).map.pcoor.y++;
+			printf("U WONNERED");	
 		}
-	}
-	else if (dir == 2)
-	{
-		if (((*prg).map.layout[(*prg).map.pcoor.y][(*prg).map.pcoor.x - 1] != '1')
-		&& ((*prg).map.layout[(*prg).map.pcoor.y][(*prg).map.pcoor.x - 1] != 'E'))
-		{
-			if ((*prg).map.layout[(*prg).map.pcoor.y][(*prg).map.pcoor.x - 1] == 'C')
-				(*prg).map.col--;
-			if ((*prg).map.layout[(*prg).map.pcoor.y][(*prg).map.pcoor.x - 1] == 'X')
-				printf("U WONNERED");	
-			(*prg).map.layout[(*prg).map.pcoor.y][(*prg).map.pcoor.x] = '0';
-			(*prg).map.layout[(*prg).map.pcoor.y][(*prg).map.pcoor.x - 1] = 'P';
-			(*prg).map.pcoor.x--;
-		}
-	}
-	else if (dir == 3)
-	{
-		if (((*prg).map.layout[(*prg).map.pcoor.y - 1][(*prg).map.pcoor.x] != '1')
-		&&  ((*prg).map.layout[(*prg).map.pcoor.y - 1][(*prg).map.pcoor.x] != 'E'))
-		{
-			if ((*prg).map.layout[(*prg).map.pcoor.y - 1][(*prg).map.pcoor.x] == 'C')
-				(*prg).map.col--;
-			if ((*prg).map.layout[(*prg).map.pcoor.y - 1][(*prg).map.pcoor.x] == 'X')
-				printf("U WONNERED");
-			(*prg).map.layout[(*prg).map.pcoor.y][(*prg).map.pcoor.x] = '0';
-			(*prg).map.layout[(*prg).map.pcoor.y - 1][(*prg).map.pcoor.x] = 'P';
-			(*prg).map.pcoor.y--;
-		}
-	}
-	else if (dir == 4)
-	{
-		if (((*prg).map.layout[(*prg).map.pcoor.y][(*prg).map.pcoor.x + 1] != '1')
-		&& (*prg).map.layout[(*prg).map.pcoor.y][(*prg).map.pcoor.x + 1] != 'E')
-		{
-			if ((*prg).map.layout[(*prg).map.pcoor.y][(*prg).map.pcoor.x + 1] == 'C')
-				(*prg).map.col--;
-			if ((*prg).map.layout[(*prg).map.pcoor.y][(*prg).map.pcoor.x + 1] == 'X')
-				printf("U WONNERED");
-			(*prg).map.layout[(*prg).map.pcoor.y][(*prg).map.pcoor.x] = '0';
-			(*prg).map.layout[(*prg).map.pcoor.y][(*prg).map.pcoor.x + 1] = 'P';
-			(*prg).map.pcoor.x++;
-		}
+		(*prg).map.layout[(*prg).map.pcoor.y][(*prg).map.pcoor.x] = '0';
+		(*prg).map.layout[(*prg).map.pcoor.y + yc][(*prg).map.pcoor.x + xc] = 'P';
+		(*prg).map.pcoor.y += yc;
+		(*prg).map.pcoor.x += xc;
 	}
 	if ((*prg).map.col == 0)
 	{
@@ -119,13 +75,31 @@ int	tiles(t_win *prg)
 		{
 			if (prg->map.layout[i][j] == '1')
 			{
-				mlx_put_image_to_window(prg->mlx_ptr, prg->win_ptr, prg->wall.ptr, (prg->width/prg->map.w)*j, 
-				(prg->height/prg->map.h)*i);
+				mlx_put_image_to_window(prg->mlx_ptr, prg->win_ptr, prg->wall.ptr, (prg->w/prg->map.w)*j, 
+				(prg->h/prg->map.h)*i);
+			}
+			if (prg->map.layout[i][j] == '0')
+			{	
+				mlx_put_image_to_window(prg->mlx_ptr, prg->win_ptr, prg->floor.ptr, (prg->w/prg->map.w)*j, 
+				(prg->h/prg->map.h)*i);
+			}
+			if (prg->map.layout[i][j] == 'E')
+			{
+				mlx_put_image_to_window(prg->mlx_ptr, prg->win_ptr, prg->ex.ptr, (prg->w/prg->map.w)*j, 
+				(prg->h/prg->map.h)*i);
+			}
+			if (prg->map.layout[i][j] == 'X')
+			{
+				mlx_put_image_to_window(prg->mlx_ptr, prg->win_ptr, prg->open.ptr, (prg->w/prg->map.w)*j, 
+				(prg->h/prg->map.h)*i);
 			}
 			if (prg->map.layout[i][j] == 'P')
 			{
-				mlx_put_image_to_window(prg->mlx_ptr, prg->win_ptr, prg->wall.ptr, (prg->width/prg->map.w) * prg->map.pcoor.x, 
-				(prg->height/prg->map.h) * prg->map.pcoor.y);
+				if (prg->rng % 2 == 0)
+					mlx_put_image_to_window(prg->mlx_ptr, prg->win_ptr, prg->player.ptr, (prg->w/prg->map.w) * prg->map.pcoor.x, (prg->h/prg->map.h) * prg->map.pcoor.y);
+				else
+					mlx_put_image_to_window(prg->mlx_ptr, prg->win_ptr, prg->player2.ptr, (prg->w/prg->map.w) * prg->map.pcoor.x, (prg->h/prg->map.h) * prg->map.pcoor.y);
+
 			}
 			j++;
 		}
@@ -136,6 +110,7 @@ int	tiles(t_win *prg)
 int	next_frame(t_win *prg)
 {
 	mlx_clear_window(prg->mlx_ptr, prg->win_ptr);
+	prg->rng++;
 	tiles(prg);
 }
 
@@ -144,16 +119,13 @@ int	handle_keypress(int keysym, t_win *prg)
 	if (keysym == XK_Escape)
 		exit_prg(prg->win_ptr);		
 	else if (keysym == XK_w)
-		move(prg, 3);
+		move(prg, -1, 0);
 	else if (keysym == XK_a)
-		move(prg, 2);
+		move(prg, 0, -1);
 	else if (keysym == XK_d)
-		move(prg, 4);
+		move(prg, 0, 1);
 	else if (keysym == XK_s)
-	{
-		move(prg, 1);
-	}
-	//printf("Dog: %d\n", keysym);
+		move(prg, 1, 0);
 	print_map(prg);
 	return (0);
 }
@@ -161,7 +133,13 @@ int	handle_keypress(int keysym, t_win *prg)
 
 void	sprites_init(t_win *prg)
 {
-	prg->wall.ptr = mlx_xpm_file_to_image(prg->mlx_ptr, "wall.xpm", &(prg->wall.w), &(prg->wall.h));
+	prg->wall.ptr = mlx_xpm_file_to_image(prg->mlx_ptr, "./sprites/wall.xpm", &(prg->wall.w), &(prg->wall.h));
+	prg->player.ptr = mlx_xpm_file_to_image(prg->mlx_ptr, "./sprites/player.xpm", &(prg->player.w), &(prg->player.h));
+	prg->player2.ptr = mlx_xpm_file_to_image(prg->mlx_ptr, "./sprites/player.xpm", &(prg->player2.w), &(prg->player2.h));
+	prg->floor.ptr = mlx_xpm_file_to_image(prg->mlx_ptr, "./sprites/floor.xpm", &(prg->floor.w), &(prg->floor.h));
+	prg->ex.ptr = mlx_xpm_file_to_image(prg->mlx_ptr, "./sprites/exit.xpm", &(prg->ex.w), &(prg->ex.h));
+	prg->open.ptr = mlx_xpm_file_to_image(prg->mlx_ptr, "./sprites/open.xpm", &(prg->open.w), &(prg->open.h));
+	prg->col.ptr = mlx_xpm_file_to_image(prg->mlx_ptr, "./sprites/collectible.xpm", &(prg->col.w), &(prg->col.h));
 }
 
 
@@ -170,13 +148,13 @@ int	main(void)
 	t_win	prg;
 	
 
-	prg.height = 600;
-	prg.width = 900;
 	prg.map = get_map_info("map.ber");
-	
+	prg.h = (prg.map.h -1) * 32;
+	prg.w = (prg.map.w-1) * 32;
+
 	prg.mlx_ptr = mlx_init();
-	prg.win_ptr = mlx_new_window(prg.mlx_ptr, prg.width, prg.height, "test");
-	
+	prg.win_ptr = mlx_new_window(prg.mlx_ptr, prg.w, prg.h, "test");
+	prg.rng = 0;
 	sprites_init(&prg);
 	
 	
