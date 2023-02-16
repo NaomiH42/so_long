@@ -27,6 +27,37 @@ t_map	map_init(t_map map)
 	return (map);
 }
 
+int	flood(t_map *map, int y, int x)
+{
+	if ((*map).layout[y][x] == '1' || (*map).layout[y][x] == 'F')
+		return(0);
+	if ((*map).layout[y][x] == 'C')
+		(*map).col--;
+	if ((*map).layout[y][x] == 'E')
+		(*map).ex--;
+	(*map).layout[y][x] = 'F';
+	flood(map, y + 1, x);
+	flood(map, y - 1, x);
+	flood(map, y, x - 1);
+	flood(map, y, x + 1);
+}
+
+int	check_path(t_map map)
+{
+	t_map	maptest;
+	int	i;
+
+	i = 0;
+	ft_memcpy(&maptest, &map, (sizeof (t_map)));
+	
+	flood(&maptest, maptest.pcoor.y, maptest.pcoor.x);
+	if (maptest.ex != 0 || maptest.col != 0)
+	{
+		return (0);
+	}
+	return (1);
+}
+
 int	check_map_req(char **layout, t_map *map)
 {
 	int	i;
@@ -38,14 +69,18 @@ int	check_map_req(char **layout, t_map *map)
 		l = 0;
 		if (strlen(layout[0]) != strlen(layout[i]))
 		{	
-			printf("it's not rectangualr");
+			printf("ERROR\nMAP IS NOT RECTANGULAR\n");
+			exit(0);
 		}
 		while (layout[i][l])
 		{
 			if (i == 0 || i == (*map).h - 1 || l == 0 || l == (*map).w - 1)
 			{
 				if(layout[i][l] != '1')
-					printf("incorrect walls");
+				{
+					printf("ERROR\nMAP IS NOT SURROUNDED BY WALLS\n");
+					exit(0);
+				}
 			}
 			else if (layout[i][l] == 'E')
 			{
@@ -66,7 +101,15 @@ int	check_map_req(char **layout, t_map *map)
 		i++;
 	}
 	if ((*map).ex != 1 || (*map).st != 1 || (*map).col < 1)
-		printf("wrong number of thingies");
+	{
+		printf("ERROR\nMAP CONTAINS INVALID NUMBER OF GAME OBJECTS\n");
+		exit(0);
+	}
+	if (!check_path(*map))
+	{
+		printf("ERROR\nMAP DOESN'T CONTAIN VALID PATH\n");
+		exit(0);	
+	}
 }
 
 t_map	get_map_info(char *map_file)

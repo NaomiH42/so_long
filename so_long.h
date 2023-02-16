@@ -13,7 +13,6 @@
 #ifndef SO_LONG_H
 # define SO_LONG_H
 
-#include <mlx.h>
 #include "mlx.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,6 +62,7 @@ typedef struct s_win
 	t_spr	player;
 	t_spr	player2;
 	t_spr	col;
+	t_spr	col2;
 	t_spr	ex;
 	t_spr	open;
 	

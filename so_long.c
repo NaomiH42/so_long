@@ -73,6 +73,11 @@ int	tiles(t_win *prg)
 		j = 0;
 		while (prg->map.layout[i][j])
 		{
+			if (prg->map.layout[i][j] == 'C')
+			{
+				mlx_put_image_to_window(prg->mlx_ptr, prg->win_ptr, prg->col.ptr, (prg->w/prg->map.w)*j, 
+				(prg->h/prg->map.h)*i);
+			}
 			if (prg->map.layout[i][j] == '1')
 			{
 				mlx_put_image_to_window(prg->mlx_ptr, prg->win_ptr, prg->wall.ptr, (prg->w/prg->map.w)*j, 
@@ -95,11 +100,10 @@ int	tiles(t_win *prg)
 			}
 			if (prg->map.layout[i][j] == 'P')
 			{
-				if (prg->rng % 2 == 0)
+				if (prg->rng < 1000)
 					mlx_put_image_to_window(prg->mlx_ptr, prg->win_ptr, prg->player.ptr, (prg->w/prg->map.w) * prg->map.pcoor.x, (prg->h/prg->map.h) * prg->map.pcoor.y);
 				else
 					mlx_put_image_to_window(prg->mlx_ptr, prg->win_ptr, prg->player2.ptr, (prg->w/prg->map.w) * prg->map.pcoor.x, (prg->h/prg->map.h) * prg->map.pcoor.y);
-
 			}
 			j++;
 		}
@@ -111,13 +115,18 @@ int	next_frame(t_win *prg)
 {
 	mlx_clear_window(prg->mlx_ptr, prg->win_ptr);
 	prg->rng++;
+	if (prg->rng > 2000)
+		prg->rng = 0;
 	tiles(prg);
 }
 
 int	handle_keypress(int keysym, t_win *prg)
 {
 	if (keysym == XK_Escape)
-		exit_prg(prg->win_ptr);		
+	{
+		mlx_destroy_window (prg->mlx_ptr, prg->win_ptr);
+		exit(0);
+	}	
 	else if (keysym == XK_w)
 		move(prg, -1, 0);
 	else if (keysym == XK_a)
@@ -135,11 +144,12 @@ void	sprites_init(t_win *prg)
 {
 	prg->wall.ptr = mlx_xpm_file_to_image(prg->mlx_ptr, "./sprites/wall.xpm", &(prg->wall.w), &(prg->wall.h));
 	prg->player.ptr = mlx_xpm_file_to_image(prg->mlx_ptr, "./sprites/player.xpm", &(prg->player.w), &(prg->player.h));
-	prg->player2.ptr = mlx_xpm_file_to_image(prg->mlx_ptr, "./sprites/player.xpm", &(prg->player2.w), &(prg->player2.h));
+	prg->player2.ptr = mlx_xpm_file_to_image(prg->mlx_ptr, "./sprites/player2.xpm", &(prg->player2.w), &(prg->player2.h));
 	prg->floor.ptr = mlx_xpm_file_to_image(prg->mlx_ptr, "./sprites/floor.xpm", &(prg->floor.w), &(prg->floor.h));
 	prg->ex.ptr = mlx_xpm_file_to_image(prg->mlx_ptr, "./sprites/exit.xpm", &(prg->ex.w), &(prg->ex.h));
 	prg->open.ptr = mlx_xpm_file_to_image(prg->mlx_ptr, "./sprites/open.xpm", &(prg->open.w), &(prg->open.h));
 	prg->col.ptr = mlx_xpm_file_to_image(prg->mlx_ptr, "./sprites/collectible.xpm", &(prg->col.w), &(prg->col.h));
+	prg->col2.ptr = mlx_xpm_file_to_image(prg->mlx_ptr, "./sprites/collectible2.xpm", &(prg->col2.w), &(prg->col2.h));
 }
 
 
@@ -149,7 +159,7 @@ int	main(void)
 	
 
 	prg.map = get_map_info("map.ber");
-	prg.h = (prg.map.h -1) * 32;
+	prg.h = (prg.map.h ) * 32;
 	prg.w = (prg.map.w-1) * 32;
 
 	prg.mlx_ptr = mlx_init();
