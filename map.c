@@ -24,34 +24,37 @@ t_map	map_init(t_map map)
 	map.pcoor.y = 0;
 	map.ecoor.x = 0;
 	map.ecoor.y = 0;
+	map.encoor.y = 0;
+	map.encoor.y = 0;
 	return (map);
 }
 
-int	flood(t_map *map, int y, int x)
+int	flood(t_map *map, int y, int x, int *ex, int *col)
 {
-	if ((*map).layout[y][x] == '1' || (*map).layout[y][x] == 'F')
+	if ((*map).layouttest[y][x] == '1' || (*map).layouttest[y][x] == 'F')
 		return(0);
-	if ((*map).layout[y][x] == 'C')
-		(*map).col--;
-	if ((*map).layout[y][x] == 'E')
-		(*map).ex--;
-	(*map).layout[y][x] = 'F';
-	flood(map, y + 1, x);
-	flood(map, y - 1, x);
-	flood(map, y, x - 1);
-	flood(map, y, x + 1);
+	if ((*map).layouttest[y][x] == 'C')
+		*col -= 1;
+	if ((*map).layouttest[y][x] == 'E')
+		*ex -= 1;
+	(*map).layouttest[y][x] = 'F';
+	flood(map, y + 1, x, ex, col);
+	flood(map, y - 1, x, ex, col);
+	flood(map, y, x - 1, ex, col);
+	flood(map, y, x + 1, ex, col);
 }
 
 int	check_path(t_map map)
 {
-	t_map	maptest;
 	int	i;
+	int	ex;
+	int	col;
 
+	col = map.col;
+	ex = map.ex;
 	i = 0;
-	ft_memcpy(&maptest, &map, (sizeof (t_map)));
-	
-	flood(&maptest, maptest.pcoor.y, maptest.pcoor.x);
-	if (maptest.ex != 0 || maptest.col != 0)
+	flood(&map, map.pcoor.y, map.pcoor.x, &ex, &col);
+	if (ex != 0 || col != 0)
 	{
 		return (0);
 	}
@@ -94,6 +97,11 @@ int	check_map_req(char **layout, t_map *map)
 				(*map).pcoor.x = l;
 				(*map).pcoor.y = i;
 			}
+			else if (layout[i][l] == 'S')
+			{
+				(*map).encoor.x = l;
+				(*map).encoor.y = i;
+			}
 			else if (layout[i][l] == 'C')
 				(*map).col++;
 			l++;
@@ -131,6 +139,7 @@ t_map	get_map_info(char *map_file)
 		map1.h++;
 	}
 	map1.layout = ft_split(layout, '\n');
+	map1.layouttest = ft_split(layout, '\n');
 	map1.w = ft_strlen(map1.layout[0]);
 	check_map_req(map1.layout, &map1);
 	return (map1);

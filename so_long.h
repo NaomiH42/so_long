@@ -41,7 +41,9 @@ typedef struct	s_map
 {
 	t_coor	pcoor;
 	t_coor	ecoor;
+	t_coor	encoor;
 	char	**layout;
+	char	**layouttest;
 	int	h;
 	int	w;
 	int	col;
@@ -56,6 +58,8 @@ typedef struct s_win
 	int		h;
 	int		w;
 	int		rng;
+	int		enmv;
+	int		movec;
 	t_map	map;
 	t_spr	wall;
 	t_spr	floor;
@@ -65,7 +69,8 @@ typedef struct s_win
 	t_spr	col2;
 	t_spr	ex;
 	t_spr	open;
-	
+	t_spr	en;
+	t_spr	en2;
 }		t_win;
 
 typedef struct s_img
