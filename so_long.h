@@ -20,7 +20,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <X11/keysym.h>
-#include "get_next_line.h"
+#include "./get_next_line/get_next_line.h"
 #include "./libft/libft.h"
 
 typedef struct	s_coor
@@ -49,6 +49,8 @@ typedef struct	s_map
 	int	col;
 	int	ex;
 	int	st;
+	int	coltest;
+	int	extest;
 }	t_map;
 
 typedef struct s_win
@@ -60,6 +62,8 @@ typedef struct s_win
 	int		rng;
 	int		enmv;
 	int		movec;
+	int		dog;
+	char	*mapargv;
 	t_map	map;
 	t_spr	wall;
 	t_spr	floor;
@@ -73,21 +77,21 @@ typedef struct s_win
 	t_spr	en2;
 }		t_win;
 
-typedef struct s_img
-{
-	t_win	win;
-	void	*img_ptr;
-	char	*addr;
-	int		h;
-	int		w;
-	int		bpp;
-	int		endian;
-	int		line_len;
-}		t_img;
-
-
 t_map	map_init(t_map map);
-int	check_map_req(char **layout, t_map *map);
+int		check_map_req(char **layout, t_map *map);
 t_map	get_map_info(char *map_file);
+void	show_img(t_win *prg, char idf, int i, int j);
+void	sprites_init(t_win *prg);
+int		move(t_win *prg, int yc, int xc);
+void	enemy_move(t_win *prg);
+int		flood(t_map *map, int y, int x);
+int		check_path(t_map map);
+void	error_msg(int nb);
+t_map	map_init(t_map map);
+int		exit_prg(t_win *window);
+void	dog_check(char *str, t_win *prg);
+void	check_arg(int argc, char **argv, t_win *prg);
+void	free_stuff(t_win *prg);
+void	free_imgs(t_win *prg);
 
 #endif

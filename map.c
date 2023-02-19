@@ -12,118 +12,92 @@
 
 #include "so_long.h"
 
-t_map	map_init(t_map map)
-{
-	map.layout = NULL;
-	(map.h) = 0;
-	(map.w) = 0;
-	(map.col) = 0;
-	(map.ex) = 0;
-	map.st = 0;
-	map.pcoor.x = 0;
-	map.pcoor.y = 0;
-	map.ecoor.x = 0;
-	map.ecoor.y = 0;
-	map.encoor.y = 0;
-	map.encoor.y = 0;
-	return (map);
-}
-
-int	flood(t_map *map, int y, int x, int *ex, int *col)
+int	flood(t_map *map, int y, int x)
 {
 	if ((*map).layouttest[y][x] == '1' || (*map).layouttest[y][x] == 'F')
-		return(0);
+		return (0);
 	if ((*map).layouttest[y][x] == 'C')
-		*col -= 1;
+		(*map).coltest -= 1;
 	if ((*map).layouttest[y][x] == 'E')
-		*ex -= 1;
+		(*map).extest -= 1;
 	(*map).layouttest[y][x] = 'F';
-	flood(map, y + 1, x, ex, col);
-	flood(map, y - 1, x, ex, col);
-	flood(map, y, x - 1, ex, col);
-	flood(map, y, x + 1, ex, col);
+	flood(map, y + 1, x);
+	flood(map, y - 1, x);
+	flood(map, y, x - 1);
+	flood(map, y, x + 1);
 }
 
 int	check_path(t_map map)
 {
 	int	i;
-	int	ex;
-	int	col;
 
-	col = map.col;
-	ex = map.ex;
+	map.coltest = map.col;
+	map.extest = map.ex;
 	i = 0;
-	flood(&map, map.pcoor.y, map.pcoor.x, &ex, &col);
-	if (ex != 0 || col != 0)
+	flood(&map, map.pcoor.y, map.pcoor.x);
+	if (map.extest != 0 || map.coltest != 0)
 	{
 		return (0);
 	}
 	return (1);
 }
 
+void	check_map_lines(char **layout, t_map *map, int i, int l)
+{
+	if (i == 0 || i == (*map).h - 1 || l == 0 || l == (*map).w - 1)
+	{
+		if (layout[i][l] != '1')
+			error_msg(2);
+	}
+	else if (layout[i][l] == 'E')
+	{
+		(*map).ex++;
+		(*map).ecoor.x = l;
+		(*map).ecoor.y = i;
+	}
+	else if (layout[i][l] == 'P')
+	{
+		(*map).st++;
+		(*map).pcoor.x = l;
+		(*map).pcoor.y = i;
+	}
+	else if (layout[i][l] == 'S')
+	{
+		(*map).encoor.x = l;
+		(*map).encoor.y = i;
+	}
+	else if (layout[i][l] == 'C')
+		(*map).col++;
+}
+
 int	check_map_req(char **layout, t_map *map)
 {
 	int	i;
 	int	l;
-	
+
 	i = 0;
 	while (layout[i])
 	{
 		l = 0;
 		if (strlen(layout[0]) != strlen(layout[i]))
-		{	
-			printf("ERROR\nMAP IS NOT RECTANGULAR\n");
-			exit(0);
-		}
+			error_msg(1);
 		while (layout[i][l])
 		{
-			if (i == 0 || i == (*map).h - 1 || l == 0 || l == (*map).w - 1)
-			{
-				if(layout[i][l] != '1')
-				{
-					printf("ERROR\nMAP IS NOT SURROUNDED BY WALLS\n");
-					exit(0);
-				}
-			}
-			else if (layout[i][l] == 'E')
-			{
-				(*map).ex++;
-				(*map).ecoor.x = l;
-				(*map).ecoor.y = i;
-			}
-			else if (layout[i][l] == 'P')
-			{
-				(*map).st++;
-				(*map).pcoor.x = l;
-				(*map).pcoor.y = i;
-			}
-			else if (layout[i][l] == 'S')
-			{
-				(*map).encoor.x = l;
-				(*map).encoor.y = i;
-			}
-			else if (layout[i][l] == 'C')
-				(*map).col++;
+			check_map_lines(layout, map, i, l);
 			l++;
 		}
 		i++;
 	}
 	if ((*map).ex != 1 || (*map).st != 1 || (*map).col < 1)
-	{
-		printf("ERROR\nMAP CONTAINS INVALID NUMBER OF GAME OBJECTS\n");
-		exit(0);
-	}
+		error_msg(3);
 	if (!check_path(*map))
-	{
-		printf("ERROR\nMAP DOESN'T CONTAIN VALID PATH\n");
-		exit(0);	
-	}
+		error_msg(4);
 }
 
 t_map	get_map_info(char *map_file)
 {
 	t_map	map1;
-	int	fd;
+	int		fd;
 	char	*layout;
 	char	*line;
 	char	**map_split;
@@ -135,12 +109,17 @@ t_map	get_map_info(char *map_file)
 	while (line != NULL)
 	{
 		layout = ft_strjoin_GNL(layout, line);
+		free(line);
 		line = get_next_line(fd);
 		map1.h++;
 	}
 	map1.layout = ft_split(layout, '\n');
 	map1.layouttest = ft_split(layout, '\n');
-	map1.w = ft_strlen(map1.layout[0]);
+	if (map1.layout[0])
+		map1.w = ft_strlen(map1.layout[0]);
 	check_map_req(map1.layout, &map1);
+	free(layout);
+	free(line);
+	close(fd);
 	return (map1);
 }
